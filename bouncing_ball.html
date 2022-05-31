@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .controls input[type="number"] {
+      width: 40px;
+    }
+
+    .main_block {
+      width: 840px;
+      margin: auto;
+    }
+
+    #data_table {
+      border: 2px solid;
+      margin: auto;
+      border-collapse: collapse;
+    }
+
+    #data_table td {
+      border: 2px solid;
+      margin: auto;
+      padding: 4px;
+    }
+  </style>
+
+  <body>
+    <div class="main_block">
+      <h1>Bouncing ball graph (little and solid ball)</h1>
+      <div class="controls">
+        <span
+          ><label>h</label>
+          <input
+            type="range"
+            id="h_val"
+            oninput="logFunc1(event)"
+            min="5"
+            value="30"
+            max="200"
+          />
+          <input
+            type="number"
+            value="30"
+            id="h_val_inp"
+            oninput="logFunc1(event)"
+          />
+        </span>
+        <span>
+          <label>a</label>
+          <input
+            type="range"
+            id="a_val"
+            oninput="logFunc2(event)"
+            min="0.06"
+            value="0.2"
+            step="0.1"
+            max="1"
+          />
+          <input
+            type="number"
+            value="0.2"
+            id="a_val_inp"
+            oninput="logFunc2(event)"
+            step="0.1"
+          />
+        </span>
+        <span>
+          <label>kx</label>
+          <input
+            type="range"
+            id="kx_val"
+            oninput="logFunc3(event)"
+            min="0.3"
+            value="1"
+            step="0.1"
+            max="1"
+          />
+          <input
+            type="number"
+            value="1"
+            id="kx_val_inp"
+            oninput="logFunc3(event)"
+            step="0.1"
+          />
+        </span>
+        <span>
+          <label>ky</label>
+          <input
+            type="range"
+            id="ky_val"
+            oninput="logFunc4(event)"
+            min="0.3"
+            value="1"
+            step="0.1"
+            max="1"
+          />
+          <input
+            type="number"
+            value="1"
+            id="ky_val_inp"
+            oninput="logFunc4(event)"
+            step="0.1"
+          />
+        </span>
+        <br /><br />
+      </div>
+
+      <canvas
+        id="f_graph"
+        width="700px"
+        height="500px"
+        style="border: gray 2px solid"
+      ></canvas>
+    </div>
+
+    <table id="data_table"></table>
+  </body>
+</html>
+
+<script src="math.js"></script>
+<script>
+  var g = 9.8;
+  var h0 = 30;
+  var v0 = Math.sqrt(2 * g * h0);
+  var kx = 1;
+  var ky = 1;
+  var a = 0.2;
+
+  function vx(n, a, v0, kx = 1, ky = 1) {
+    if (n == 1) {
+      return v0 * Math.sin(a);
+    } else {
+      return (
+        kx * vx(n - 1, a, v0, kx, ky) -
+        2 * ky * vy(n - 1, a, v0, kx, ky) * Math.tan(a)
+      );
+    }
+  }
+
+  function vy(n, a, v0, kx = 1, ky = 1) {
+    return -Math.pow(ky, n - 1) * v0 * Math.cos(a);
+  }
+
+  function vv(n, a, v0, kx = 1, ky = 1) {
+    return Math.pow(
+      Math.pow(vx(n, a, v0, kx, ky), 2) * Math.pow(vy(n - 1, a, v0, kx, ky), 2),
+      1 / 2
+    );
+  }
+
+  function vvx(n, a, v0, kx = 1, ky = 1) {
+    return (
+      vx(n, a, v0, kx, ky) * Math.cos(a) + vy(n, a, v0, kx, ky) * Math.sin(a)
+    );
+  }
+
+  function vvy(n, a, v0, kx = 1, ky = 1) {
+    return (
+      -vx(n, a, v0, kx, ky) * Math.sin(a) + vy(n, a, v0, kx, ky) * Math.cos(a)
+    );
+  }
+
+  function tt(n, a, v0, ky = 1) {
+    return (Math.pow(ky, n) * 2 * v0) / g;
+  }
+
+  function xx(n, a, v0, kx = 1, ky = 1) {
+    if (n == 1 || n == 0) {
+      return 0;
+    } else {
+      return (
+        xx(n - 1, a, v0, kx, ky) +
+        (2 *
+          ky *
+          vy(n - 1, a, v0, kx, ky) *
+          (1 / Math.cos(a)) *
+          (-kx * vx(n - 1, a, v0, kx, ky) +
+            ky * vy(n - 1, a, v0, kx, ky) * Math.tan(a))) /
+          g
+      );
+    }
+  }
+
+  function xn(n, a, v0, kx = 1, ky = 1) {
+    if (n == 1) {
+      return 0;
+    } else {
+      return (
+        (2 *
+          ky *
+          vy(n - 1, a, v0, kx, ky) *
+          (1 / Math.cos(a)) *
+          (-kx * vx(n - 1, a, v0, kx, ky) +
+            ky * vy(n - 1, a, v0, kx, ky) * Math.tan(a))) /
+        g
+      );
+    }
+  }
+
+  function xx0(n, a, v0, kx = 1, ky = 1) {
+    return xx(n, a, v0, kx, ky) * Math.cos(a);
+  }
+
+  function yy0(n, a, v0, kx = 1, ky = 1) {
+    return -xx(n, a, v0, kx, ky) * Math.sin(a);
+  }
+
+  var i_glob = 1;
+  function f(x, a, h0, kx = 1, ky = 1) {
+    var result;
+    var i = 1;
+
+    while (
+      x > xx0(i, a, v0, kx, ky) &&
+      xx0(i, a, v0, kx, ky) >= 1.001 * xx0(i - 1, a, v0, kx, ky)
+    ) {
+      i++;
+      i_glob = i;
+    }
+
+    if (x >= 0) {
+      if (xx0(i, a, v0, kx, ky) >= 1.001 * xx0(i - 1, a, v0, kx, ky)) {
+        result =
+          yy0(i, a, v0, kx, ky) +
+          (vvy(i, a, v0, kx, ky) * (x - xx0(i, a, v0, kx, ky))) /
+            vvx(i, a, v0, kx, ky) -
+          (g * Math.pow(x - xx0(i, a, v0, kx, ky), 2)) /
+            (2 * Math.pow(vvx(i, a, v0, kx, ky), 2));
+      } else {
+        result = -Math.tan(a) * x;
+      }
+    } else {
+      result = Math.pow(v0, 2) / (2 * g);
+    }
+
+    return result;
+  }
+
+  var y_shift = 300;
+  var end_x = 800;
+  var start_x = 0;
+  var x_shift = 10;
+
+  function logFunc1(e) {
+    var val = Number(e.target.value);
+    if (val > 200) {
+      val = 200;
+    } else if (val < 5) {
+      val = 5;
+    }
+    h0 = val || 5;
+    v0 = Math.sqrt(2 * g * h0);
+    document.querySelector("#h_val_inp").value = val;
+    document.querySelector("#h_val").value = val;
+    draw_f();
+  }
+
+  function logFunc2(e) {
+    var val = Number(e.target.value);
+    if (val > 1) {
+      val = 1;
+    } else if (val < 0.06) {
+      val = 0.06;
+    }
+    a = val;
+    document.querySelector("#a_val_inp").value = val;
+    document.querySelector("#a_val").value = val;
+    canvas_fit([end_x, y_shift + end_x * Math.tan(a)]);
+    draw_f();
+  }
+
+  function logFunc3(e) {
+    var val = Number(e.target.value);
+    if (val > 1) {
+      val = 1;
+    } else if (val < 0.3) {
+      val = 0.3;
+    }
+    kx = val || 0.3;
+    document.querySelector("#kx_val").value = val;
+    document.querySelector("#kx_val_inp").value = val;
+    draw_f();
+  }
+
+  function logFunc4(e) {
+    var val = Number(e.target.value);
+    if (val > 1) {
+      val = 1;
+    } else if (val < 0.3) {
+      val = 0.3;
+    }
+    ky = val || 0.3;
+    document.querySelector("#ky_val").value = val;
+    document.querySelector("#ky_val_inp").value = val;
+    draw_f();
+  }
+
+  var points_n = [];
+  var points_dot = [];
+  var table = [];
+
+  function draw_f() {
+    var canvas = document.querySelector("#f_graph");
+    var ctx = canvas.getContext("2d");
+    ctx.beginPath();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.rect(
+      0,
+      y_shift + end_x * Math.tan(a) + 2,
+      end_x,
+      y_shift + end_x * Math.tan(a),
+      100
+    );
+    ctx.fillStyle = "orange";
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(start_x, y_shift);
+    ctx.lineTo(end_x, y_shift + end_x * Math.tan(a));
+    ctx.lineTo(end_x, y_shift + end_x * Math.tan(a));
+    ctx.lineTo(start_x, y_shift + end_x * Math.tan(a));
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = "4";
+    ctx.setLineDash([0, 0]);
+    ctx.stroke();
+    ctx.fillStyle = "gray";
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+
+    points_n = [];
+    points_dot = [];
+
+    for (var x = start_x - 1; x != end_x; x += 1) {
+      if (
+        x <= 0 ||
+        (x > xx0(i_glob, a, v0, kx, ky) &&
+          xx0(i_glob, a, v0, kx, ky) >= 1.001 * xx0(i_glob - 1, a, v0, kx, ky))
+      ) {
+        if (!(res == undefined || isNaN(res))) {
+          points_dot.push({ x: x + x_shift, y: y_shift - res });
+        } else {
+          points_dot.push({ x: x_shift, y: y_shift + Math.tan(a) * x_shift });
+        }
+      }
+
+      var res = f(x, a, h0, kx, ky) - x_shift * Math.tan(a);
+
+      points_n.push({ x: x + x_shift, y: y_shift - res });
+
+      ctx.lineTo(x + x_shift, y_shift - res);
+    }
+    ctx.setLineDash([5, 5]);
+    ctx.lineWidth = "2";
+    ctx.strokeStyle = "blue";
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(end_x, y_shift + end_x * Math.tan(a), 30, 3.14, 3.14 + a);
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = "4";
+    ctx.setLineDash([0, 0]);
+    ctx.stroke();
+
+    ctx.font = "14px sans-serif";
+    ctx.fillStyle = "white";
+    ctx.fillText(
+      Math.round((a * 180) / Math.PI) + "°",
+      end_x - 85,
+      y_shift + end_x * Math.tan(a) - 4
+    );
+
+    for (var i = 0; i < points_dot.length; i++) {
+      ctx.beginPath();
+      ctx.arc(points_dot[i].x, points_dot[i].y, 4, 0, 2 * Math.PI);
+      ctx.fillStyle = "red";
+      ctx.fill();
+    }
+
+    table = [];
+
+    var row = "";
+    row += "<tr><td>N</td>";
+    for (var l = 1; l < 12; l++) {
+      table.push({
+        l: Math.round(xx(l, a, v0, kx, ky)),
+        ln: Math.round(xn(l, a, v0, kx, ky)),
+        n: l,
+      });
+
+      row += "<td>" + table[l - 1].n + "</td>";
+    }
+    row += "</tr>";
+
+    row += "<tr><td>L</td>";
+
+    for (var l = 1; l < 12; l++) {
+      row += "<td>" + table[l - 1].l + "</td>";
+    }
+    row += "</tr>";
+
+    row += "<tr><td>Ln</td>";
+
+    for (var l = 1; l < 12; l++) {
+      row += "<td>" + table[l - 1].ln + "</td>";
+    }
+    row += "</tr>";
+
+    document.querySelector("#data_table").innerHTML = row;
+
+    ctx.fillStyle = "black";
+
+    for (var i = 0; i < canvas.width; i++) {
+      if (i % 10 == 0 && i % 50 != 0) {
+        ctx.font = "8px sans-serif";
+        ctx.fillText("|", i + x_shift, canvas.height);
+      }
+
+      if (i % 50 == 0) {
+        ctx.font = "14px sans-serif";
+        ctx.fillText("|", i + x_shift, canvas.height);
+        ctx.fillText(i, i + x_shift, canvas.height - 10);
+      }
+    }
+  }
+
+  function canvas_fit(points_loc) {
+    var canvas = document.querySelector("#f_graph");
+    var ctx = canvas.getContext("2d");
+
+    canvas.width = points_loc[0];
+
+    canvas.height = points_loc[1] + 25;
+  }
+
+  canvas_fit([end_x, y_shift + end_x * Math.tan(a)]);
+  draw_f();
+</script>
